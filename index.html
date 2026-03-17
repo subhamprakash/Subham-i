@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vikash - Video Downloader</title>
+    <style>
+        /* Dangerous Dark Red Theme Variables */
+        :root {
+            --bg-color: #030303;
+            --card-bg: #0a0a0a;
+            --primary: #d90429; /* Blood Red */
+            --primary-hover: #ef233c;
+            --text-main: #ffffff;
+            --text-muted: #777777;
+            --glow: 0 0 20px rgba(217, 4, 41, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Impact', 'Arial Black', sans-serif; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: radial-gradient(circle at center, #1a0004 0%, #030303 100%);
+            position: relative; /* Menu positioning ke liye zaroori */
+        }
+
+        /* 3-Dot Menu Styling */
+        .menu-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .kebab-menu {
+            font-size: 32px;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 0px 10px;
+            user-select: none;
+            transition: all 0.3s;
+            text-shadow: 0 0 5px rgba(217, 4, 41, 0.5);
+        }
+
+        .kebab-menu:hover {
+            color: white;
+            text-shadow: var(--glow);
+        }
+
+        /* Dropdown Box */
+        .dropdown {
+            display: none; /* By default hidden */
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), var(--glow);
+            width: 220px;
+            flex-direction: column;
+            border-top: 3px solid var(--primary);
+        }
+
+        .dropdown.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-header {
+            padding: 10px;
+            background-color: #111;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-align: center;
+            letter-spacing: 2px;
+            font-family: 'Courier New', Courier, monospace;
+            border-bottom: 1px solid #333;
+        }
+
+        .dropdown-item {
+            padding: 15px;
+            color: white;
+            text-decoration: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            font-weight: bold;
+            border-bottom: 1px solid #222;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dropdown-item:hover {
+            background-color: #1a0004;
+            color: var(--primary);
+            padding-left: 20px; /* Hover par thoda aage khiskega */
+        }
+
+        .dropdown-item:last-child { border-bottom: none; }
+
+        /* Icons for dropdown */
+        .icon { font-size: 18px; }
+
+        /* vikash Name Styling */
+        header {
+            margin-top: 60px; /* Thoda niche kiya taaki menu ke liye jagah bache */
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .creator-name {
+            font-size: 38px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 12px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--primary), 0 0 30px var(--primary);
+            margin-bottom: 5px;
+        }
+
+        p.subtitle {
+            color: var(--primary);
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Main Container - Mobile Friendly Border Added */
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            border: 2px solid #444; /* Clean visible border */
+            border-radius: 16px; /* Rounded corners for mobile app feel */
+            border-top: 4px solid var(--primary);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 15px rgba(217, 4, 41, 0.15); /* App glow */
+            position: relative;
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 20px; }
+
+        input[type="text"] {
+            width: 100%; padding: 16px; background-color: #000;
+            border: 1px solid #333; color: white; font-size: 15px;
+            font-family: 'Courier New', Courier, monospace; outline: none; transition: all 0.3s;
+            border-radius: 8px; /* Input box rounded */
+        }
+
+        input[type="text"]:focus { border-color: var(--primary); box-shadow: inset 0 0 10px rgba(217, 4, 41, 0.3); }
+
+        button {
+            width: 100%; padding: 16px; border: 2px solid var(--primary);
+            background-color: transparent; color: var(--primary); font-size: 18px;
+            letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;
+            border-radius: 8px; /* Button rounded */
+        }
+
+        button:hover { background-color: var(--primary); color: white; box-shadow: var(--glow); }
+        button:active { transform: scale(0.95); }
+        button:disabled { border-color: #333; color: #555; background-color: #111; cursor: not-allowed; box-shadow: none; }
+
+        .status { text-align: center; margin-top: 20px; font-size: 14px; font-family: 'Courier New', Courier, monospace; min-height: 20px; }
+        .loader { display: none; width: 40px; height: 40px; border: 4px solid #111; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 20px auto; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .result-box { display: none; margin-top: 30px; padding-top: 20px; border-top: 1px dashed #333; flex-direction: column; align-items: center; gap: 20px; }
+        .video-preview { width: 100%; background-color: #000; border: 1px solid #333; padding: 5px; box-shadow: 0 0 20px rgba(0,0,0,0.8); border-radius: 8px; }
+        video { width: 100%; max-height: 400px; display: block; border: 1px solid #222; border-radius: 4px; }
+        .btn-download { background-color: var(--primary); color: white; border: none; font-weight: bold; }
+        .btn-download:hover { background-color: var(--primary-hover); box-shadow: var(--glow); }
+
+        /* Niche Wala Description Box */
+        .footer-info {
+            max-width: 420px;
+            width: 100%;
+            margin-top: 35px;
+            padding: 20px;
+            background-color: rgba(10, 10, 10, 0.8);
+            border: 1px dashed var(--primary);
+            border-radius: 12px;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
+            margin-bottom: 20px;
+        }
+
+        .footer-info span {
+            color: var(--text-main);
+            font-weight: bold;
+            text-shadow: 0 0 5px var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="menu-container">
+        <div class="kebab-menu" id="kebabMenu">&#8942;</div>
+        <div class="dropdown" id="dropdownMenu">
+            <div class="dropdown-header">DEVELOPER INFO</div>
+            <a href="https://www.instagram.com/vshack999?igsh=MWg1Y2kxN2k5a3Ezdw==" target="_blank" class="dropdown-item">
+                <span class="icon">📷</span> INSTAGRAM
+            </a>
+            <a href="https://t.me/vshack999" target="_blank" class="dropdown-item">
+                <span class="icon">✈️</span> TELEGRAM
+            </a>
+            <a href="https://yt.openinapp.co/zv6t4" target="_blank" class="dropdown-item">
+                <span class="icon">▶️</span> YOUTUBE
+            </a>
+        </div>
+    </div>
+
+    <header>
+        <div class="creator-name">𝐕𝐈𝐊𝐀𝐒𝐇L</div>
+        <p class="subtitle">Ultimate Video Downloader</p>
+    </header>
+
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="linkInput" placeholder="VIDEO LINK HERE..." autocomplete="off">
+            <button id="fetchBtn">INITIALIZE</button>
+        </div>
+
+        <div class="loader" id="loader"></div>
+        <div class="status" id="statusText"></div>
+
+        <div class="result-box" id="resultBox">
+            <div class="video-preview">
+                <video id="videoPlayer" controls></video>
+            </div>
+            <button id="downloadBtn" class="btn-download">EXECUTE DOWNLOAD</button>
+        </div>
+    </div>
+
+    <div class="footer-info">
+        <p>WEBSITE INFO:</p>
+        <br>
+        Is website ki madad se aap <span>YouTube, Instagram, Facebook ,etc</span> aur kisi bhi social media platform ke videos, reels aur media direct apne device mein download kar sakte hain. Bas link paste karein aur download dabayein!
+    </div>
+
+    <script>
+        // --- 3 Dot Menu Logic ---
+        const kebabMenu = document.getElementById('kebabMenu');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        // Click karne par menu open/close hoga
+        kebabMenu.addEventListener('click', (e) => {
+            e.stopPropagation(); // Yeh body click ko rokte hai
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // Agar koi screen par kahin aur click kare, toh menu band ho jayega
+        document.addEventListener('click', (e) => {
+            if (!dropdownMenu.contains(e.target) && e.target !== kebabMenu) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // --- Downloader Logic ---
+        const linkInput = document.getElementById('linkInput');
+        const fetchBtn = document.getElementById('fetchBtn');
+        const loader = document.getElementById('loader');
+        const statusText = document.getElementById('statusText');
+        const resultBox = document.getElementById('resultBox');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let currentVideoUrl = "";
+
+        fetchBtn.addEventListener('click', async () => {
+            const url = linkInput.value.trim();
+
+            if (!url) { showError("SYSTEM ERROR: NO LINK DETECTED!"); return; }
+            if (!url.includes('instagram.com')) { showError("SYSTEM ERROR: INVALID TARGET!"); return; }
+
+            resultBox.style.display = 'none';
+            videoPlayer.src = "";
+            currentVideoUrl = "";
+            showLoading("CONNECTING TO SERVER...");
+
+            try {
+                const apiUrl = `https://mixy-ox-enjoy.vercel.app/?url=${encodeURIComponent(url)}`;
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) throw new Error("CONNECTION FAILED.");
+
+                const data = await response.json();
+                const videoUrl = data.url || data.video_url || data.media || (data.data && data.data.video_url);
+
+                if (videoUrl) {
+                    currentVideoUrl = videoUrl;
+                    videoPlayer.src = currentVideoUrl;
+                    resultBox.style.display = 'flex'; 
+                    hideLoading("TARGET ACQUIRED.");
+                } else {
+                    throw new Error("MEDIA NOT FOUND.");
+                }
+
+            } catch (error) {
+                showError(error.message);
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!currentVideoUrl) return;
+            
+            statusText.style.color = "#fff";
+            statusText.innerText = "DOWNLOADING...";
+            
+            const a = document.createElement('a');
+            a.href = currentVideoUrl;
+            a.setAttribute('download', `𝐯𝐢𝐤𝐚𝐬𝐡L_Reel_${Date.now()}.mp4`); 
+            a.setAttribute('target', '_blank'); 
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            statusText.style.color = "var(--primary)";
+            statusText.innerText = "DOWNLOAD COMPLETE.";
+        });
+
+        function showLoading(msg) { fetchBtn.disabled = true; loader.style.display = 'block'; statusText.style.color = "var(--text-muted)"; statusText.innerText = msg; }
+        function hideLoading(msg) { fetchBtn.disabled = false; loader.style.display = 'none'; statusText.style.color = "var(--primary)"; statusText.innerText = msg; }
+        function showError(msg) { fetchBtn.disabled = false; loader.style.display = 'none'; statusText.style.color = "#ffb703"; statusText.innerText = msg; }
+    </script>
+</body>
+</html>
